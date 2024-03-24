@@ -1,0 +1,10 @@
+services:
+  ebookmode:
+    container_name: ebookmode
+    ports:
+      - "8080:80"
+    build: 
+      context: .
+      target: development
+    volumes:
+      - .:/app
