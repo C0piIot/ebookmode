@@ -9,15 +9,16 @@
 <body>
     <header>
         <nav>
-            <a href="/">Home</a>
+            <a href="/">🏠 Home</a>
             <select id="bookmarks">
-                <option value="">Bookmarks</option>
+                <option value="">📒 Bookmarks</option>
             </select>
+            {{#if url}}<a href="{{ url }}">🌍 Source</a>{{/if}}
         </nav>
         <h1>ebookmode</h1>
         <p>
             <form method="GET" action="/">
-                <input type="text" required name="url" placeholder="🌍">
+                <input type="text" required name="url" placeholder="🌍" value="{{ url }}">
                 <button type="submit">Go</button>
             </form>
         </p>

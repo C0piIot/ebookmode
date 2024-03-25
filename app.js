@@ -17,8 +17,15 @@ app.get("/", async (request, response) => {
             await (await fetch(url)).text(),
             { url: url }
         );
-        const reader = new Readability(doc.window.document);
-        response.send(reader.parse().content);
+        const article = new Readability(doc.window.document).parse();
+        response.render(
+            'article', 
+            { 
+                article: article.content,
+                title: article.title,
+                url: url
+            }
+        );
     } else {
         response.render('home');
     }
