@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{#if title}}{{ title }} - {{/if}}ebookmode</title>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">Home</a>
+            <select id="bookmarks">
+                <option value="">Bookmarks</option>
+            </select>
+        </nav>
+        <h1>ebookmode</h1>
+        <p>
+            <form method="GET" action="/">
+                <input type="text" required name="url" placeholder="🌍">
+                <button type="submit">Go</button>
+            </form>
+        </p>
+    </header>
+    <main>{{{ body }}}</main>
+    <footer>
+        <p>
+            Brought to you by <a href="https://dropdatabase.es/">dropdatabase.es</a><br>
+            <a href="https://github.com/callmewind/ebookmode">View source</a>
+        </p>
+    </footer>
+    <script type="module">
+        document
+            .getElementById('bookmarks')
+            .addEventListener(
+                'change', event => 
+                    window.location.href = '/?url=' + encodeURIComponent(event.target.value)
+            );
+    </script>
+</body>
+</html>

@@ -1,19 +1,27 @@
 import express from 'express';
 import { JSDOM } from 'jsdom';
+import { Readability } from '@mozilla/readability';
+import { engine } from 'express-handlebars';
 
 const app = express();
 
-app.get("/", (request, response) => {
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', './views');
+
+
+app.get("/", async (request, response) => {
     const url = request.query?.url;
     if(url) {
-        const doc = new JSDOM("<body>Look at this cat: <img src='./cat.jpg'></body>", {
-            url: "https://www.example.com/the-page-i-got-the-source-from"
-          });
+        const doc = new JSDOM(
+            await (await fetch(url)).text(),
+            { url: url }
+        );
         const reader = new Readability(doc.window.document);
-        const article = reader.parse();
-        response.send(reader.content);
+        response.send(reader.parse().content);
     } else {
-        response.send("url is missing");
+        response.render('home');
     }
 });  
+
 app.listen(80);
