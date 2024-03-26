@@ -15,11 +15,12 @@
             </select>
             {{#if url}}<a href="{{ url }}">🌍 Source</a>{{/if}}
         </nav>
-        <h1>ebookmode</h1>
+        <h1>{{#if title}}{{ title }}{{ else }}ebookmode{{/if}}</h1>
         <p>
             <form method="GET" action="/">
                 <input type="text" required name="url" placeholder="🌍" value="{{ url }}">
                 <button type="submit">Go</button>
+                {{#if url}}<button type="button">+ Bookmark</button>{{/if}}
             </form>
         </p>
     </header>
@@ -34,8 +35,7 @@
         document
             .getElementById('bookmarks')
             .addEventListener(
-                'change', event => 
-                    window.location.href = '/?url=' + encodeURIComponent(event.target.value)
+                'change', event => window.location.href =  `/?url=${encodeURIComponent(event.target.value)}`
             );
     </script>
 </body>
