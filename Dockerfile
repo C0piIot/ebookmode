@@ -1,6 +1,6 @@
 FROM node:current-alpine AS base
 RUN mkdir -p /app
-EXPOSE 80
+EXPOSE 8080
 
 FROM base AS development
 ENV NODE_ENV=development

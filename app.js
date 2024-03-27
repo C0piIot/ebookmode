@@ -9,7 +9,7 @@ app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 app.set('views', './views');
 
-
+// alternative https://github.com/postlight/parser/issues
 app.get("/", async (request, response) => {
     let url = (request.query?.url || '' ).trim();
     if(url) {
@@ -35,7 +35,10 @@ app.get("/", async (request, response) => {
             );
         }
 
-        const article = new Readability(dom.window.document).parse();
+        const article = new Readability(
+            dom.window.document,
+            { charThreshold: 50, nbTopCandidates: 20 }
+        ).parse();
 
         dom = new JSDOM(article.content, { url: url});
 
@@ -55,4 +58,4 @@ app.get("/", async (request, response) => {
     }
 });
 
-app.listen(80);
+app.listen(8080);

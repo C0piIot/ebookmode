@@ -10,17 +10,15 @@
     <header>
         <nav>
             <a href="/">🏠 Home</a>
-            <select id="bookmarks">
-                <option value="">📒 Bookmarks</option>
-            </select>
+            <select id="bookmarks"></select>
             {{#if url}}<a href="{{ url }}">🌍 Source</a>{{/if}}
         </nav>
-        <h1>{{#if title}}{{ title }}{{ else }}ebookmode{{/if}}</h1>
+        <h1 id="title">{{#if title}}{{ title }}{{ else }}ebookmode{{/if}}</h1>
         <p>
             <form method="GET" action="/">
-                <input type="text" required name="url" placeholder="🌍" value="{{ url }}">
-                <button type="submit">Go</button>
-                {{#if url}}<button type="button">+ Bookmark</button>{{/if}}
+                <input type="text" required name="url" placeholder="URL here" value="{{ url }}">
+                <button type="submit">🌍 Go</button>
+                {{#if url}}<button type="button" id="toggleBookmark">+ Bookmark</button>{{/if}}
             </form>
         </p>
     </header>
@@ -32,11 +30,54 @@
         </p>
     </footer>
     <script type="module">
-        document
-            .getElementById('bookmarks')
-            .addEventListener(
-                'change', event => window.location.href =  `/?url=${encodeURIComponent(event.target.value)}`
+        const LABEL_MAX_LENGTH = 30;
+        const bookmarks = JSON.parse(window.localStorage.getItem('bookmarks')) || {};
+        const select = document.getElementById('bookmarks');
+        const updateBookmarks = () => {
+            const option = document.createElement('option');
+            option.textContent = '📒 Bookmarks'
+            select.replaceChildren(
+                ...[ option ].concat(
+                    Object.keys(bookmarks).map(url => {
+                        const option = document.createElement('option');
+                        option.value = url;
+                        option.textContent = bookmarks[url].substring(0, 20);
+                        if(option.textContent.length < bookmarks[url].length) {
+                            option.textContent = `${option.textContent}…`;
+                        }
+                        return option;
+                    })
+                )
             );
+        }
+
+        select.addEventListener(
+            'change',
+            event => window.location.href =  `/?url=${encodeURIComponent(event.target.value)}`
+        );
+        updateBookmarks();
+        {{#if url}}
+        const url = new URLSearchParams(window.location.search).get('url').trim();
+        const toggleBookmark = document.getElementById('toggleBookmark');
+        toggleBookmark.addEventListener(
+            'click',
+            function() {
+                if (url in bookmarks) {
+                    delete bookmarks[url];
+                    this.textContent = '+ Bookmark';
+                } else {
+                    bookmarks[url] = document.getElementById('title').textContent.trim();
+                    this.textContent = '- Bookmark';
+                }
+                window.localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+                updateBookmarks();
+            }
+        );
+        toggleBookmark.textContent = url in bookmarks? '- Bookmark' : '+ Bookmark';
+        {{/if}}
+
+
+
     </script>
 </body>
 </html>
