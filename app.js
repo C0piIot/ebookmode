@@ -36,8 +36,7 @@ app.get("/", async (request, response) => {
         }
 
         const article = new Readability(
-            dom.window.document,
-            { charThreshold: 50, nbTopCandidates: 20 }
+            dom.window.document
         ).parse();
 
         dom = new JSDOM(article.content, { url: url});

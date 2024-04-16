@@ -15,11 +15,11 @@
         </nav>
         <h1 id="title">{{#if title}}{{ title }}{{ else }}ebookmode{{/if}}</h1>
         <p>
-            <form method="GET" action="/">
-                <input type="text" required name="url" placeholder="URL here" value="{{ url }}">
-                <button type="submit">🌍 Go</button>
-                {{#if url}}<button type="button" id="toggleBookmark">+ Bookmark</button>{{/if}}
-            </form>
+        <form method="GET" action="/">
+            <input type="text" required name="url" placeholder="URL here" value="{{ url }}">
+            <button type="submit">🌍 Go</button>
+            {{#if url}}<button type="button" id="toggleBookmark">+ Bookmark</button>{{/if}}
+        </form>
         </p>
     </header>
     <main>{{{ body }}}</main>
@@ -29,55 +29,69 @@
             <a href="https://github.com/callmewind/ebookmode">View source</a>
         </p>
     </footer>
-    <script type="module">
+    <script type="text/javascript">
+        /* old javascript intended for ebook browser compatibility :_) */
+        var bookmarkList = {};
         const LABEL_MAX_LENGTH = 30;
-        const bookmarks = JSON.parse(window.localStorage.getItem('bookmarks')) || {};
-        const select = document.getElementById('bookmarks');
-        const updateBookmarks = () => {
-            const option = document.createElement('option');
-            option.textContent = '📒 Bookmarks'
-            select.replaceChildren(
-                ...[ option ].concat(
-                    Object.keys(bookmarks).map(url => {
-                        const option = document.createElement('option');
-                        option.value = url;
-                        option.textContent = bookmarks[url].substring(0, 20);
-                        if(option.textContent.length < bookmarks[url].length) {
-                            option.textContent = `${option.textContent}…`;
-                        }
-                        return option;
-                    })
-                )
-            );
+        const bookmarksMatch =  /\bbookmarks=([^;]+)/.exec(document.cookie);
+        if(bookmarksMatch) {
+            bookmarkList = JSON.parse(decodeURIComponent(bookmarksMatch[1]));
         }
+        const select = document.getElementById('bookmarks');
+        const updateBookmarks = function () {
+            while (select.firstChild) {
+                select.removeChild(select.firstChild);
+            }
+
+            var option = document.createElement('option');
+            option.textContent = '📒 Bookmarks'
+            option.value = '';
+            select.appendChild(option);
+
+            Object.keys(bookmarkList).forEach(function(url) {
+                const option = document.createElement('option');
+                option.value = url;
+                option.textContent = bookmarkList[url];
+                select.appendChild(option);
+            });
+        };
 
         select.addEventListener(
             'change',
-            event => window.location.href =  `/?url=${encodeURIComponent(event.target.value)}`
+            function(event) { 
+               if (event.target.value) {
+                window.location.href = '/?url=' + encodeURIComponent(event.target.value);
+               }
+            }
         );
         updateBookmarks();
+
         {{#if url}}
-        const url = new URLSearchParams(window.location.search).get('url').trim();
+        const url = decodeURIComponent(/\burl=([^&]+)/.exec(window.location.search)[1]);
         const toggleBookmark = document.getElementById('toggleBookmark');
         toggleBookmark.addEventListener(
             'click',
             function() {
-                if (url in bookmarks) {
-                    delete bookmarks[url];
+                if (url in bookmarkList) {
+                    delete bookmarkList[url];
                     this.textContent = '+ Bookmark';
                 } else {
-                    bookmarks[url] = document.getElementById('title').textContent.trim();
+                    const title = document.getElementById('title').textContent.trim();
+                    bookmarkList[url] = title.slice(0, 20);
+
+                    if(title.length > bookmarkList[url].length) {
+                        bookmarkList[url] += '…';
+                    }
                     this.textContent = '- Bookmark';
                 }
-                window.localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+                document.cookie = 'bookmarks=' + 
+                    encodeURIComponent(JSON.stringify(bookmarkList)) +
+                    ';path=/;max-age=34560000';
                 updateBookmarks();
             }
         );
-        toggleBookmark.textContent = url in bookmarks? '- Bookmark' : '+ Bookmark';
+        toggleBookmark.textContent = url in bookmarkList? '- Bookmark' : '+ Bookmark';
         {{/if}}
-
-
-
     </script>
 </body>
 </html>
