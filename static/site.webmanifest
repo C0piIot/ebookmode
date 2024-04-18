@@ -1,0 +1,54 @@
+{
+    "background_color": "#ffffff",
+    "dir": "ltr",
+    "display": "fullscreen",
+    "name": "ebookmode",
+    "orientation": "any",
+    "scope": "/",
+    "short_name": "ebookmode",
+    "start_url": "/",
+    "theme_color": "#000000",
+    "id": "ebookmode",
+    "description": "Mozilla's reader mode for ebook readers",
+    "lang": "en",
+    "categories": [
+      "productivity",
+      "utilities"
+    ],
+    "share_target": {
+      "method": "GET",
+      "action": "/",
+      "params": {
+        "url": "url",
+        "title": "title",
+        "text": "text",
+        "files": []
+      }
+    },
+    "icons": [
+      {
+          "src": "/static/icon-any-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "any"
+      },
+      {
+          "src":"/static/icon-any-512.png",
+          "sizes":"512x512",
+          "type":"image/png",
+          "purpose": "any"
+      },
+      {
+          "src": "/static/icon-maskable-192.png",
+          "sizes": "192x192",
+          "type": "image/png",
+          "purpose": "maskable"
+      },
+      {
+          "src":"/static/icon-maskable-512.png",
+          "sizes":"512x512",
+          "type":"image/png",
+          "purpose": "maskable"
+      }
+  ]
+  }
