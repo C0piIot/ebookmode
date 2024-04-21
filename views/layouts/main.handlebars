@@ -32,12 +32,8 @@
     </footer>
     <script type="text/javascript">
         /* old javascript intended for ebook browser compatibility :_) */
-        var bookmarkList = {};
+        const bookmarkList = JSON.parse(window.localStorage.getItem("bookmarks") || "{}");
         const LABEL_MAX_LENGTH = 30;
-        const bookmarksMatch =  /\bbookmarks=([^;]+)/.exec(document.cookie);
-        if(bookmarksMatch) {
-            bookmarkList = JSON.parse(decodeURIComponent(bookmarksMatch[1]));
-        }
         const select = document.getElementById('bookmarks');
         const updateBookmarks = function () {
             while (select.firstChild) {
@@ -85,9 +81,7 @@
                     }
                     this.textContent = '- Bookmark';
                 }
-                document.cookie = 'bookmarks=' + 
-                    encodeURIComponent(JSON.stringify(bookmarkList)) +
-                    ';path=/;max-age=34560000';
+                window.localStorage.setItem("bookmarks", JSON.stringify(bookmarkList));
                 updateBookmarks();
             }
         );
