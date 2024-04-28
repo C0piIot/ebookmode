@@ -16,6 +16,7 @@ RUN mkdir -p /app/node_modules
 RUN chown node:node /app/node_modules
 USER node
 WORKDIR /app
-COPY --chown=node:node . .
+COPY --chown=node:node package*.json .
 RUN npm install
+COPY --chown=node:node . .
 CMD [ "node", "app.js" ]
