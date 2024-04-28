@@ -6,6 +6,10 @@
     <title>{{#if title}}{{ title }} - {{/if}}ebookmode</title>
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <link rel="manifest" href="/site.webmanifest">
+    <link rel="icon" type="image/png" href="/static/ebookmode.16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/static/ebookmode.32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/static/ebookmode.48.png" sizes="48x48">
+    <link rel="icon" type="image/png" href="/static/ebookmode.144.png" sizes="144x144">
 </head>
 <body>
     <header>
@@ -62,7 +66,7 @@
         updateBookmarks();
 
         {{#if url}}
-        const url = decodeURIComponent(/\burl=([^&]+)/.exec(window.location.search)[1]);
+        const url = "{{ url }}";
         const toggleBookmark = document.getElementById('toggleBookmark');
         toggleBookmark.addEventListener(
             'click',

@@ -9,14 +9,27 @@ app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
 app.set('views', './views');
 
+const getUrl = request => {
+    let url = request.query?.url?.trim() ||
+        (request.query?.text?.match(/\bhttps?:\/\/\S+/gi) || [])[0] ||
+        (request.query?.title?.match(/\bhttps?:\/\/\S+/gi) || [])[0];
+    
+    if(!url) {
+        return null;
+    }
+
+    if(!url.startsWith("http://") && !url.startsWith("https://")) {
+        url = `https://${url}`;
+    }
+
+    return url;
+}
+
 // alternative https://github.com/postlight/parser/issues
 app.get("/", async (request, response) => {
-    let url = (request.query?.url || '' ).trim();
-    if(url) {
+    const url = getUrl(request);
 
-        if(!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = `https://${url}`;
-        }
+    if(url) {
 
         let dom;
 

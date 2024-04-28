@@ -1,54 +1,84 @@
 {
-    "background_color": "#ffffff",
-    "dir": "ltr",
-    "display": "fullscreen",
-    "name": "ebookmode",
-    "orientation": "any",
-    "scope": "/",
-    "short_name": "ebookmode",
-    "start_url": "/",
-    "theme_color": "#000000",
-    "id": "ebookmode",
-    "description": "Mozilla's reader mode for ebook readers",
-    "lang": "en",
-    "categories": [
-      "productivity",
-      "utilities"
-    ],
-    "share_target": {
-      "method": "GET",
-      "action": "/",
-      "params": {
-        "url": "url",
-        "title": "title",
-        "text": "text",
-        "files": []
-      }
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "fullscreen",
+  "name": "ebookmode",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "ebookmode",
+  "start_url": "/",
+  "theme_color": "#000000",
+  "id": "ebookmode",
+  "description": "Mozilla's reader mode for ebook readers",
+  "lang": "en",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "share_target": {
+    "method": "GET",
+    "action": "/",
+    "params": {
+      "url": "url",
+      "title": "title",
+      "text": "text",
+      "files": []
+    }
+  },
+  "icons": [
+    {
+        "src": "/static/ebookmode.16.png",
+        "sizes": "16x16",
+        "type": "image/png",
+        "purpose": "any"
     },
-    "icons": [
-      {
-          "src": "/static/icon-any-192.png",
-          "sizes": "192x192",
-          "type": "image/png",
-          "purpose": "any"
-      },
-      {
-          "src":"/static/icon-any-512.png",
-          "sizes":"512x512",
-          "type":"image/png",
-          "purpose": "any"
-      },
-      {
-          "src": "/static/icon-maskable-192.png",
-          "sizes": "192x192",
-          "type": "image/png",
-          "purpose": "maskable"
-      },
-      {
-          "src":"/static/icon-maskable-512.png",
-          "sizes":"512x512",
-          "type":"image/png",
-          "purpose": "maskable"
-      }
+    {
+      "src": "/static/ebookmode.32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/ebookmode.48.png",
+      "sizes": "48x48",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/ebookmode.96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/ebookmode.144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/ebookmode.192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/ebookmode.256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/ebookmode.384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/ebookmode.512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    } 
   ]
-  }
+}
