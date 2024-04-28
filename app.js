@@ -56,7 +56,10 @@ app.get("/", async (request, response) => {
         dom = new JSDOM(article.content, { url: url});
 
         dom.window.document.querySelectorAll('a')
-            .forEach(link => link.href = `/?url=${encodeURIComponent(link.href)}`);
+            .forEach(link => {
+                link.href = `/?url=${encodeURIComponent(link.href)}`;
+                link.rel = 'nofollow';
+            });
 
         response.render(
             'article',
