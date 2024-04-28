@@ -63,7 +63,10 @@ app.get("/", async (request, response) => {
             {
                 article: dom.window.document.body.innerHTML,
                 title: article.title,
-                url: url
+                url: url,
+                urlEncoded: encodeURIComponent(url),
+                excerpt: article.excerpt,
+                host: request.hostname
             }
         );
     } else {

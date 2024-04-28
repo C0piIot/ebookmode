@@ -11,7 +11,22 @@
     <link rel="icon" type="image/png" href="/static/ebookmode.48.png" sizes="48x48">
     <link rel="icon" type="image/png" href="/static/ebookmode.144.png" sizes="144x144">
     <meta name="description" content="Mozilla's reader mode for ebook browsers.">
-    <meta name="robots" content="{{#if url}}noindex,nofollow{{ else }}index,follow{{/if}}">
+    <meta property="og:image" content="https://{{ host }}/static/ebookmode.144.png">
+    {{#if url}}
+    <meta property="og:title" content="{{ title }} - ebookmode">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://{{ host }}/?url={{ urlEncoded }}">
+    <meta name="robots" content="noindex,follow">
+    <meta property="og:description" content="{{ excerpt }}">
+    <link rel="canonical" href="/?url={{ urlEncoded }}">
+    {{ else }}
+    <meta property="og:title" content="ebookmode">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://{{ host }}/">
+    <meta property="og:description" content="Mozilla's reader mode for ebook browsers.">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="/">
+    {{/if}}
 </head>
 <body>
     <header>
