@@ -28,23 +28,26 @@ const getUrl = request => {
 
 // alternative https://github.com/postlight/parser/issues
 app.get("/", async (request, response) => {
-    const url = getUrl(request);
-
-    if(url) {
+    const baseContext = {
+        build: process.env.BUILD_VERSION,
+        url: getUrl(request)
+    }
+console.log(baseContext)
+    if(baseContext.url) {
 
         let dom;
 
         try {
             dom = new JSDOM(
-                await (await fetch(url)).text(),
-                { url: url }
+                await (await fetch(baseContext.url)).text(),
+                baseContext
             );
         } catch(error) {
             return response.render(
                 'error',
                 {
-                    url: url,
-                    error: error
+                    ...baseContext,
+                    ...{ error: error }
                 }
             );
         }
@@ -53,7 +56,7 @@ app.get("/", async (request, response) => {
             dom.window.document
         ).parse();
 
-        dom = new JSDOM(article.content, { url: url});
+        dom = new JSDOM(article.content, { url: baseContext.url});
 
         dom.window.document.querySelectorAll('a')
             .forEach(link => {
@@ -64,12 +67,14 @@ app.get("/", async (request, response) => {
         response.render(
             'article',
             {
-                article: dom.window.document.body.innerHTML,
-                title: article.title,
-                url: url,
-                urlEncoded: encodeURIComponent(url),
-                excerpt: article.excerpt,
-                host: request.hostname
+                ...baseContext,
+                ...{
+                    article: dom.window.document.body.innerHTML,
+                    title: article.title,
+                    urlEncoded: encodeURIComponent(baseContext.url),
+                    excerpt: article.excerpt,
+                    host: request.hostname
+                }
             }
         );
     } else {

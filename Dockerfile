@@ -1,5 +1,9 @@
 FROM node:current-alpine AS base
 RUN mkdir -p /app
+ARG BUILD_VERSION=dev
+ENV BUILD_VERSION=$BUILD_VERSION
+ARG GIT_REV=HEAD
+ENV GIT_REV=$GIT_REV
 EXPOSE 8080
 
 FROM base AS development
@@ -7,7 +11,7 @@ ENV NODE_ENV=development
 COPY package*.json /
 RUN npm install
 WORKDIR /app
-CMD [ "node", "node_modules/nodemon/bin/nodemon.js" ]
+CMD [ "node", "/node_modules/nodemon/bin/nodemon.js" ]
 
 FROM base AS production
 ENV NODE_ENV=production
