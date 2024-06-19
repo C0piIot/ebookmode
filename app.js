@@ -1,6 +1,6 @@
 import express from 'express';
 import { JSDOM } from 'jsdom';
-import { Readability } from '@mozilla/readability';
+import { Readability } from '@mozilla/readability';// alternative https://github.com/postlight/parser/issues
 import { engine } from 'express-handlebars';
 
 const app = express();
@@ -26,13 +26,12 @@ const getUrl = request => {
     return url || null;
 }
 
-// alternative https://github.com/postlight/parser/issues
 app.get("/", async (request, response) => {
     const baseContext = {
         build: process.env.BUILD_VERSION,
         url: getUrl(request)
     }
-console.log(baseContext)
+
     if(baseContext.url) {
 
         let dom;
