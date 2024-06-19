@@ -29,7 +29,8 @@ const getUrl = request => {
 app.get("/", async (request, response) => {
     const baseContext = {
         build: process.env.BUILD_VERSION,
-        url: getUrl(request)
+        url: getUrl(request),
+        host: request.hostname
     }
 
     if(baseContext.url) {
@@ -71,8 +72,7 @@ app.get("/", async (request, response) => {
                     article: dom.window.document.body.innerHTML,
                     title: article.title,
                     urlEncoded: encodeURIComponent(baseContext.url),
-                    excerpt: article.excerpt,
-                    host: request.hostname
+                    excerpt: article.excerpt
                 }
             }
         );
