@@ -77,7 +77,7 @@ app.get("/", async (request, response) => {
             }
         );
     } else {
-        response.render('home');
+        response.render('home', baseContext);
     }
 });
 
