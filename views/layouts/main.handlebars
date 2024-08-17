@@ -39,7 +39,10 @@
         <form method="GET" action="/">
             <input type="text" required name="url" placeholder="URL here" value="{{ url }}">
             <button type="submit">🌍 Go</button>
-            {{#if url}}<button type="button" id="toggleBookmark">+ Bookmark</button>{{/if}}
+            {{#if url}}
+                <button type="button" id="toggleBookmark">+ Bookmark</button>
+                <button type="button" id="share" style="display:none">Share</button>
+            {{/if}}
         </form>
     </header>
     <main>{{{ body }}}</main>
@@ -106,6 +109,15 @@
             }
         );
         toggleBookmark.textContent = url in bookmarkList? '- Bookmark' : '+ Bookmark';
+
+        if ('share' in navigator) {
+            const shareButton = document.getElementById('share');
+            shareButton.style.display = 'inline-block';
+            shareButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigator.share({ url: window.location.href, text: document.getElementById('title').textContent.trim() });
+            });
+        }
         {{/if}}
     </script>
 </body>
