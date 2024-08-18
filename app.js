@@ -35,13 +35,46 @@ app.get("/", async (request, response) => {
 
     if(baseContext.url) {
 
-        let dom;
-
         try {
-            dom = new JSDOM(
-                await (await fetch(baseContext.url)).text(),
+            const documentResponse = await fetch(baseContext.url);
+            const contentType = documentResponse.headers.get('Content-type');
+            if (!contentType || contentType.indexOf("text/html") === -1) {
+                throw new Error(`Invalid content type "${contentType}"`);
+            }
+            
+            const originalDom = new JSDOM(
+                await documentResponse.text(),
                 baseContext
             );
+
+            const article = new Readability(
+                originalDom.window.document
+            ).parse();
+
+            if(!article){
+                throw new Error("Error processing document html");
+            }
+
+            const cleanedDom = new JSDOM(article.content, { url: baseContext.url});
+            cleanedDom.window.document.querySelectorAll('a')
+                .forEach(link => {
+                    link.href = `/?url=${encodeURIComponent(link.href)}`;
+                    link.rel = 'nofollow';
+                });
+
+            response.render(
+                'article',
+                {
+                    ...baseContext,
+                    ...{
+                        article: cleanedDom.window.document.body.innerHTML,
+                        title: article.title,
+                        urlEncoded: encodeURIComponent(baseContext.url),
+                        excerpt: article.excerpt
+                    }
+                }
+            );
+
         } catch(error) {
             return response.render(
                 'error',
@@ -51,31 +84,6 @@ app.get("/", async (request, response) => {
                 }
             );
         }
-
-        const article = new Readability(
-            dom.window.document
-        ).parse();
-
-        dom = new JSDOM(article.content, { url: baseContext.url});
-
-        dom.window.document.querySelectorAll('a')
-            .forEach(link => {
-                link.href = `/?url=${encodeURIComponent(link.href)}`;
-                link.rel = 'nofollow';
-            });
-
-        response.render(
-            'article',
-            {
-                ...baseContext,
-                ...{
-                    article: dom.window.document.body.innerHTML,
-                    title: article.title,
-                    urlEncoded: encodeURIComponent(baseContext.url),
-                    excerpt: article.excerpt
-                }
-            }
-        );
     } else {
         response.render('home', baseContext);
     }
