@@ -2,10 +2,12 @@ import express from 'express';
 import { JSDOM } from 'jsdom';
 import { Readability } from '@mozilla/readability';// alternative https://github.com/postlight/parser/issues
 import { engine } from 'express-handlebars';
+import morgan from 'morgan';
 
 const app = express();
 
 app.engine('handlebars', engine());
+app.use(morgan('combined'));
 app.set('view engine', 'handlebars');
 app.set('views', './views');
 
