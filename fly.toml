@@ -4,7 +4,7 @@
 #
 
 app = 'ebookmode'
-primary_region = 'mad'
+primary_region = 'cdg'
 swap_size_mb = 256
 
 [build]
