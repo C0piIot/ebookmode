@@ -85,6 +85,14 @@
             }
         );
         updateBookmarks();
+        document.addEventListener(
+            'click',
+            function(event) {
+                if (event.target !== document.activeElement) {
+                    window.scrollBy(0, event.x > (window.innerWidth/2) ? window.innerHeight : -window.innerHeight);
+                }
+            }
+        );
 
         {{#if url}}
         const url = "{{ url }}";
