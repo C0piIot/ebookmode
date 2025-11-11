@@ -93,7 +93,6 @@
                 }
             }
         );
-
         {{#if url}}
         const url = "{{ url }}";
         const toggleBookmark = document.getElementById('toggleBookmark');
@@ -121,7 +120,7 @@
         if ('share' in navigator) {
             const shareButton = document.getElementById('share');
             shareButton.style.display = 'inline-block';
-            shareButton.addEventListener('click', (e) => {
+            shareButton.addEventListener('click', function(event) {
                 e.preventDefault();
                 navigator.share({ url: window.location.href, text: document.getElementById('title').textContent.trim() });
             });
