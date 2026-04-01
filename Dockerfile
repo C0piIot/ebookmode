@@ -17,7 +17,7 @@ COPY . .
 RUN go test ./...
 
 FROM test AS builder
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o ebookmode .
+RUN CGO_ENABLED=0 go build -ldflags="-s -w -X main.buildVersion=${BUILD_VERSION} -X main.gitRev=${GIT_REV}" -o ebookmode .
 
 FROM alpine:3.21 AS production
 RUN adduser -D -u 1000 app

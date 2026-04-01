@@ -15,8 +15,8 @@ import (
 	"golang.org/x/net/html"
 )
 
-var buildVersion = os.Getenv("BUILD_VERSION")
-var gitRev = os.Getenv("GIT_REV")
+var buildVersion = "dev"
+var gitRev = "HEAD"
 var urlPattern = regexp.MustCompile(`\bhttps?://\S+`)
 
 var (
