@@ -16,6 +16,7 @@ import (
 )
 
 var buildVersion = os.Getenv("BUILD_VERSION")
+var gitRev = os.Getenv("GIT_REV")
 var urlPattern = regexp.MustCompile(`\bhttps?://\S+`)
 
 var (
@@ -26,6 +27,7 @@ var (
 
 type pageData struct {
 	Build      string
+	GitRev     string
 	URL        string
 	URLEncoded string
 	Host       string
@@ -79,9 +81,10 @@ func rewriteLinks(n *html.Node, base *url.URL) {
 func handler(w http.ResponseWriter, r *http.Request) {
 	rawURL := getURL(r)
 	base := pageData{
-		Build: buildVersion,
-		URL:   rawURL,
-		Host:  r.Host,
+		Build:  buildVersion,
+		GitRev: gitRev,
+		URL:    rawURL,
+		Host:   r.Host,
 	}
 
 	if rawURL == "" {
