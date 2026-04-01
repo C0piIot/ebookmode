@@ -1,9 +1,10 @@
+{{define "layout"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{#if title}}{{ title }} - {{/if}}ebookmode</title>
+    <title>{{if .Title}}{{.Title}} - {{end}}ebookmode</title>
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple-v1.min.css">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="icon" type="image/png" href="/static/ebookmode.16.png" sizes="16x16">
@@ -11,46 +12,46 @@
     <link rel="icon" type="image/png" href="/static/ebookmode.48.png" sizes="48x48">
     <link rel="icon" type="image/png" href="/static/ebookmode.144.png" sizes="144x144">
     <meta name="description" content="Mozilla's reader mode for ebook browsers.">
-    <meta property="og:image" content="https://{{ host }}/static/ebookmode.144.png">
-    {{#if url}}
-    <meta property="og:title" content="{{ title }} - ebookmode">
+    <meta property="og:image" content="https://{{.Host}}/static/ebookmode.144.png">
+    {{if .URL}}
+    <meta property="og:title" content="{{.Title}} - ebookmode">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://{{ host }}/?url={{ urlEncoded }}">
+    <meta property="og:url" content="https://{{.Host}}/?url={{.URLEncoded}}">
     <meta name="robots" content="noindex,follow">
-    <meta property="og:description" content="{{ excerpt }}">
-    <link rel="canonical" href="/?url={{ urlEncoded }}">
-    {{ else }}
+    <meta property="og:description" content="{{.Excerpt}}">
+    <link rel="canonical" href="/?url={{.URLEncoded}}">
+    {{else}}
     <meta property="og:title" content="ebookmode">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://{{ host }}/">
+    <meta property="og:url" content="https://{{.Host}}/">
     <meta property="og:description" content="Mozilla's reader mode for ebook browsers.">
     <meta name="robots" content="index,follow">
     <link rel="canonical" href="/">
-    {{/if}}
+    {{end}}
 </head>
 <body>
     <header>
         <nav>
             <a href="/">🏠 Home</a>
             <select id="bookmarks"></select>
-            {{#if url}}<a href="{{ url }}">🌍 Source</a>{{/if}}
+            {{if .URL}}<a href="{{.URL}}">🌍 Source</a>{{end}}
         </nav>
-        <h1 id="title">{{#if title}}{{ title }}{{ else }}ebookmode{{/if}}</h1>
+        <h1 id="title">{{if .Title}}{{.Title}}{{else}}ebookmode{{end}}</h1>
         <form method="GET" action="/">
-            <input type="text" required name="url" placeholder="URL here" value="{{ url }}">
+            <input type="text" required name="url" placeholder="URL here" value="{{.URL}}">
             <button type="submit">🌍 Go</button>
-            {{#if url}}
+            {{if .URL}}
                 <button type="button" id="toggleBookmark">+ Bookmark</button>
                 <button type="button" id="share" style="display:none">Share</button>
-            {{/if}}
+            {{end}}
         </form>
     </header>
-    <main>{{{ body }}}</main>
+    <main>{{block "content" .}}{{end}}</main>
     <footer>
         <p>
             <img src="/static/ebookmode.16.png" height="16" width="16" alt="">
             Brought to you by <a href="https://dropdatabase.es/">dropdatabase.es</a><br>
-            Build {{ build }} - <a href="https://github.com/callmewind/ebookmode">View source</a>
+            Build {{.Build}} - <a href="https://github.com/callmewind/ebookmode">View source</a>
         </p>
     </footer>
     <script>
@@ -93,8 +94,8 @@
                 }
             }
         );
-        {{#if url}}
-        const url = "{{ url }}";
+        {{if .URL}}
+        const url = {{.URL}};
         const toggleBookmark = document.getElementById('toggleBookmark');
         toggleBookmark.addEventListener(
             'click',
@@ -125,7 +126,8 @@
                 navigator.share({ url: window.location.href, text: document.getElementById('title').textContent.trim() });
             });
         }
-        {{/if}}
+        {{end}}
     </script>
 </body>
 </html>
+{{end}}
