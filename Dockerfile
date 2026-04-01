@@ -10,10 +10,13 @@ EXPOSE 8080
 FROM base AS development
 CMD ["go", "run", "."]
 
-FROM base AS builder
+FROM base AS test
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
+RUN go test ./...
+
+FROM test AS builder
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o ebookmode .
 
 FROM alpine:3.21 AS production
