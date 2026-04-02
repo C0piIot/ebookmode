@@ -188,8 +188,8 @@ func TestHandlerInvalidContentType(t *testing.T) {
 	w := httptest.NewRecorder()
 	handler(w, r)
 
-	if w.Code != http.StatusBadGateway {
-		t.Errorf("status = %d, want 502", w.Code)
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", w.Code)
 	}
 	if !strings.Contains(w.Body.String(), "Invalid content type") {
 		t.Errorf("expected content-type error message; got: %s", w.Body.String())
@@ -201,8 +201,8 @@ func TestHandlerUnreachableURL(t *testing.T) {
 	w := httptest.NewRecorder()
 	handler(w, r)
 
-	if w.Code != http.StatusBadGateway {
-		t.Errorf("status = %d, want 502", w.Code)
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", w.Code)
 	}
 }
 

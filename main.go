@@ -95,7 +95,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	renderError := func(err error) {
 		base.Error = err
-		w.WriteHeader(http.StatusBadGateway)
 		errorTmpl.ExecuteTemplate(w, "layout", base)
 	}
 
