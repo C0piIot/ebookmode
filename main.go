@@ -19,6 +19,10 @@ var buildVersion = "dev"
 var gitRev = "HEAD"
 var urlPattern = regexp.MustCompile(`\bhttps?://\S+`)
 
+var httpClient = &http.Client{
+	Timeout: 30 * time.Second,
+}
+
 var (
 	homeTmpl    = template.Must(template.ParseFiles("templates/layout.html", "templates/home.html"))
 	articleTmpl = template.Must(template.ParseFiles("templates/layout.html", "templates/article.html"))
@@ -98,7 +102,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		errorTmpl.ExecuteTemplate(w, "layout", base)
 	}
 
-	resp, err := http.Get(rawURL) //nolint:gosec
+	req, err := http.NewRequest(http.MethodGet, rawURL, nil) //nolint:gosec
+	if err != nil {
+		renderError(err)
+		return
+	}
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
+	req.Header.Set("Accept-Language", "en-US,en;q=0.5")
+	req.Header.Set("Upgrade-Insecure-Requests", "1")
+	req.Header.Set("Sec-Fetch-Dest", "document")
+	req.Header.Set("Sec-Fetch-Mode", "navigate")
+	req.Header.Set("Sec-Fetch-Site", "none")
+	req.Header.Set("Sec-Fetch-User", "?1")
+
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		renderError(err)
 		return
