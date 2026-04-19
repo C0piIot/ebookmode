@@ -87,19 +87,8 @@
         );
         updateBookmarks();
         const INTERACTIVE_TAGS = { A: 1, BUTTON: 1, INPUT: 1, SELECT: 1, TEXTAREA: 1, LABEL: 1, SUMMARY: 1 };
-        // Listen to touchend (not click) to ignore mouse input on desktop. Walk parents
-        // manually instead of Element.closest(): unavailable on old e-ink WebKit browsers.
-        var touchStartX = 0, touchStartY = 0;
-        document.addEventListener('touchstart', function(event) {
-            var t = event.changedTouches[0];
-            touchStartX = t.clientX;
-            touchStartY = t.clientY;
-        });
-        document.addEventListener('touchend', function(event) {
-            var t = event.changedTouches[0];
-            if (Math.abs(t.clientX - touchStartX) > 10 || Math.abs(t.clientY - touchStartY) > 10) {
-                return;
-            }
+        // Walk parents manually instead of Element.closest(): unavailable on old e-ink WebKit browsers.
+        document.addEventListener('click', function(event) {
             var el = event.target;
             while (el && el.nodeType === 1) {
                 if (INTERACTIVE_TAGS[el.tagName]) {
@@ -111,7 +100,7 @@
                 }
                 el = el.parentNode;
             }
-            window.scrollBy(0, t.clientX > (window.innerWidth/2) ? window.innerHeight : -window.innerHeight);
+            window.scrollBy(0, event.clientX > (window.innerWidth/2) ? window.innerHeight : -window.innerHeight);
         });
         {{if .URL}}
         const url = {{.URL}};
