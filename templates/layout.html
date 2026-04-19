@@ -59,6 +59,7 @@
         const bookmarkList = JSON.parse(window.localStorage.getItem("bookmarks") || "{}");
         const LABEL_MAX_LENGTH = 30;
         const select = document.getElementById('bookmarks');
+        const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
         const updateBookmarks = function () {
             while (select.firstChild) {
                 select.removeChild(select.firstChild);
@@ -88,20 +89,22 @@
         updateBookmarks();
         const INTERACTIVE_TAGS = { A: 1, BUTTON: 1, INPUT: 1, SELECT: 1, TEXTAREA: 1, LABEL: 1, SUMMARY: 1 };
         // Walk parents manually instead of Element.closest(): unavailable on old e-ink WebKit browsers.
-        document.addEventListener('click', function(event) {
-            var el = event.target;
-            while (el && el.nodeType === 1) {
-                if (INTERACTIVE_TAGS[el.tagName]) {
-                    return;
+        if (isTouch) {
+            document.addEventListener('click', function(event) {
+                var el = event.target;
+                while (el && el.nodeType === 1) {
+                    if (INTERACTIVE_TAGS[el.tagName]) {
+                        return;
+                    }
+                    var role = el.getAttribute && el.getAttribute('role');
+                    if (role === 'button' || el.isContentEditable) {
+                        return;
+                    }
+                    el = el.parentNode;
                 }
-                var role = el.getAttribute && el.getAttribute('role');
-                if (role === 'button' || el.isContentEditable) {
-                    return;
-                }
-                el = el.parentNode;
-            }
-            window.scrollBy(0, event.clientX > (window.innerWidth/2) ? window.innerHeight : -window.innerHeight);
-        });
+                window.scrollBy(0, event.clientX > (window.innerWidth/2) ? window.innerHeight : -window.innerHeight);
+            });
+        }
         {{if .URL}}
         const url = {{.URL}};
         const toggleBookmark = document.getElementById('toggleBookmark');
