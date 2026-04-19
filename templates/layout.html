@@ -86,14 +86,33 @@
             }
         );
         updateBookmarks();
-        document.addEventListener(
-            'click',
-            function(event) {
-                if (event.target !== document.activeElement) {
-                    window.scrollBy(0, event.x > (window.innerWidth/2) ? window.innerHeight : -window.innerHeight);
-                }
+        const INTERACTIVE_TAGS = { A: 1, BUTTON: 1, INPUT: 1, SELECT: 1, TEXTAREA: 1, LABEL: 1, SUMMARY: 1 };
+        // Listen to touchend (not click) to ignore mouse input on desktop. Walk parents
+        // manually instead of Element.closest(): unavailable on old e-ink WebKit browsers.
+        var touchStartX = 0, touchStartY = 0;
+        document.addEventListener('touchstart', function(event) {
+            var t = event.changedTouches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+        });
+        document.addEventListener('touchend', function(event) {
+            var t = event.changedTouches[0];
+            if (Math.abs(t.clientX - touchStartX) > 10 || Math.abs(t.clientY - touchStartY) > 10) {
+                return;
             }
-        );
+            var el = event.target;
+            while (el && el.nodeType === 1) {
+                if (INTERACTIVE_TAGS[el.tagName]) {
+                    return;
+                }
+                var role = el.getAttribute && el.getAttribute('role');
+                if (role === 'button' || el.isContentEditable) {
+                    return;
+                }
+                el = el.parentNode;
+            }
+            window.scrollBy(0, t.clientX > (window.innerWidth/2) ? window.innerHeight : -window.innerHeight);
+        });
         {{if .URL}}
         const url = {{.URL}};
         const toggleBookmark = document.getElementById('toggleBookmark');
