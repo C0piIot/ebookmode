@@ -7,6 +7,9 @@ app = 'ebookmode'
 primary_region = 'cdg'
 swap_size_mb = 256
 
+[env]
+  ALLOWED_HOST = 'ebookmode.dropdatabase.es'
+
 [build]
   build-target = 'production'
 

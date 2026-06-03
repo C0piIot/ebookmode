@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"log/slog"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -168,6 +169,26 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// hostMiddleware rejects requests whose Host header does not match
+// ALLOWED_HOST. When ALLOWED_HOST is unset (e.g. local dev) it is a no-op.
+func hostMiddleware(next http.Handler) http.Handler {
+	allowed := os.Getenv("ALLOWED_HOST")
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if allowed != "" {
+			host := r.Host
+			if h, _, err := net.SplitHostPort(host); err == nil {
+				host = h
+			}
+			if !strings.EqualFold(host, allowed) {
+				slog.Warn("rejected host", "host", r.Host, "remote", r.RemoteAddr)
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handler)
@@ -176,7 +197,7 @@ func main() {
 		http.ServeFile(w, r, "static/site.webmanifest")
 	})
 	slog.Info("listening on :8080")
-	if err := http.ListenAndServe(":8080", loggingMiddleware(mux)); err != nil {
+	if err := http.ListenAndServe(":8080", loggingMiddleware(hostMiddleware(mux))); err != nil {
 		slog.Error("server error", "err", err)
 		os.Exit(1)
 	}
