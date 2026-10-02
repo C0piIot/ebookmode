@@ -132,10 +132,13 @@ func articleHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
+		slog.Error("fetch", "url", rawURL, "err", err)
 		renderError(err)
 		return
 	}
 	defer resp.Body.Close()
+
+	slog.Info("fetch", "url", rawURL, "status", resp.StatusCode)
 
 	ct := resp.Header.Get("Content-Type")
 	if !strings.Contains(ct, "text/html") {
