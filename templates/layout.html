@@ -16,10 +16,10 @@
     {{if .URL}}
     <meta property="og:title" content="{{.Title}} - ebookmode">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://{{.Host}}/?url={{.URLEncoded}}">
+    <meta property="og:url" content="https://{{.Host}}/article?url={{.URLEncoded}}">
     <meta name="robots" content="noindex,follow">
     <meta property="og:description" content="{{.Excerpt}}">
-    <link rel="canonical" href="/?url={{.URLEncoded}}">
+    <link rel="canonical" href="/article?url={{.URLEncoded}}">
     {{else}}
     <meta property="og:title" content="ebookmode">
     <meta property="og:type" content="website">
@@ -37,7 +37,7 @@
             {{if .URL}}<a href="{{.URL}}">🌍 Source</a>{{end}}
         </nav>
         <h1 id="title">{{if .Title}}{{.Title}}{{else}}ebookmode{{end}}</h1>
-        <form method="GET" action="/">
+        <form method="GET" action="/article">
             <input type="text" required name="url" placeholder="URL here" value="{{.URL}}">
             <button type="submit">🌍 Go</button>
             {{if .URL}}
@@ -82,7 +82,7 @@
             'change',
             function(event) {
                if (event.target.value) {
-                window.location.href = '/?url=' + encodeURIComponent(event.target.value);
+                window.location.href = '/article?url=' + encodeURIComponent(event.target.value);
                }
             }
         );

@@ -1,0 +1,5 @@
+# Articles are third-party content rendered on the fly: nothing here is worth
+# crawling, and every hit costs us an upstream fetch.
+User-agent: *
+Disallow: /article
+Crawl-delay: 10

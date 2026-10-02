@@ -67,7 +67,7 @@ func TestRewriteLinks_RelativeURL(t *testing.T) {
 		rewriteLinks(n, base)
 	}
 	got := renderNodes(nodes)
-	want := "/?url=https%3A%2F%2Fexample.com%2Fabout"
+	want := "/article?url=https%3A%2F%2Fexample.com%2Fabout"
 	if !strings.Contains(got, want) {
 		t.Errorf("relative href not rewritten; got %q", got)
 	}
@@ -80,7 +80,7 @@ func TestRewriteLinks_AbsoluteURL(t *testing.T) {
 		rewriteLinks(n, base)
 	}
 	got := renderNodes(nodes)
-	want := "/?url=https%3A%2F%2Fother.com%2Fpage"
+	want := "/article?url=https%3A%2F%2Fother.com%2Fpage"
 	if !strings.Contains(got, want) {
 		t.Errorf("absolute href not rewritten; got %q", got)
 	}
@@ -117,7 +117,7 @@ func TestRewriteLinks_Nested(t *testing.T) {
 		rewriteLinks(n, base)
 	}
 	got := renderNodes(nodes)
-	if !strings.Contains(got, "/?url=") {
+	if !strings.Contains(got, "/article?url=") {
 		t.Errorf("nested link not rewritten; got %q", got)
 	}
 }
@@ -140,10 +140,10 @@ eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident.</p>
 </body>
 </html>`
 
-func TestHandlerHomePage(t *testing.T) {
+func TestHomeHandler(t *testing.T) {
 	r := httptest.NewRequest("GET", "/", nil)
 	w := httptest.NewRecorder()
-	handler(w, r)
+	homeHandler(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("status = %d, want 200", w.Code)
@@ -153,16 +153,52 @@ func TestHandlerHomePage(t *testing.T) {
 	}
 }
 
-func TestHandlerArticle(t *testing.T) {
+func TestHomeHandlerIgnoresURLParam(t *testing.T) {
+	r := httptest.NewRequest("GET", "/?url=https://example.com", nil)
+	w := httptest.NewRecorder()
+	homeHandler(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", w.Code)
+	}
+	if !strings.Contains(w.Body.String(), "What is ebookmode?") {
+		t.Errorf("expected home page, got: %s", w.Body.String())
+	}
+}
+
+func TestHomeHandlerUnknownPath(t *testing.T) {
+	r := httptest.NewRequest("GET", "/whatever", nil)
+	w := httptest.NewRecorder()
+	homeHandler(w, r)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("status = %d, want 404", w.Code)
+	}
+}
+
+func TestArticleHandlerWithoutURL(t *testing.T) {
+	r := httptest.NewRequest("GET", articlePath, nil)
+	w := httptest.NewRecorder()
+	articleHandler(w, r)
+
+	if w.Code != http.StatusFound {
+		t.Errorf("status = %d, want 302", w.Code)
+	}
+	if loc := w.Header().Get("Location"); loc != "/" {
+		t.Errorf("Location = %q, want %q", loc, "/")
+	}
+}
+
+func TestArticleHandler(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, articleHTML)
 	}))
 	defer ts.Close()
 
-	r := httptest.NewRequest("GET", "/?url="+url.QueryEscape(ts.URL), nil)
+	r := httptest.NewRequest("GET", articlePath+"?url="+url.QueryEscape(ts.URL), nil)
 	w := httptest.NewRecorder()
-	handler(w, r)
+	articleHandler(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("status = %d, want 200; body: %s", w.Code, w.Body.String())
@@ -172,21 +208,21 @@ func TestHandlerArticle(t *testing.T) {
 		t.Errorf("article title missing from response")
 	}
 	// links should be rewritten
-	if !strings.Contains(body, "/?url=") {
+	if !strings.Contains(body, "/article?url=") {
 		t.Errorf("links not rewritten in article")
 	}
 }
 
-func TestHandlerInvalidContentType(t *testing.T) {
+func TestArticleHandlerInvalidContentType(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/pdf")
 		fmt.Fprint(w, "%PDF-1.4")
 	}))
 	defer ts.Close()
 
-	r := httptest.NewRequest("GET", "/?url="+url.QueryEscape(ts.URL), nil)
+	r := httptest.NewRequest("GET", articlePath+"?url="+url.QueryEscape(ts.URL), nil)
 	w := httptest.NewRecorder()
-	handler(w, r)
+	articleHandler(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("status = %d, want 200", w.Code)
@@ -196,17 +232,17 @@ func TestHandlerInvalidContentType(t *testing.T) {
 	}
 }
 
-func TestHandlerUnreachableURL(t *testing.T) {
-	r := httptest.NewRequest("GET", "/?url=http://localhost:1", nil)
+func TestArticleHandlerUnreachableURL(t *testing.T) {
+	r := httptest.NewRequest("GET", articlePath+"?url=http://localhost:1", nil)
 	w := httptest.NewRecorder()
-	handler(w, r)
+	articleHandler(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("status = %d, want 200", w.Code)
 	}
 }
 
-func TestHandlerURLFromTextParam(t *testing.T) {
+func TestArticleHandlerURLFromTextParam(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		fmt.Fprint(w, articleHTML)
@@ -214,11 +250,40 @@ func TestHandlerURLFromTextParam(t *testing.T) {
 	defer ts.Close()
 
 	sharedText := "Read this article " + ts.URL
-	r := httptest.NewRequest("GET", "/?text="+url.QueryEscape(sharedText), nil)
+	r := httptest.NewRequest("GET", articlePath+"?text="+url.QueryEscape(sharedText), nil)
 	w := httptest.NewRecorder()
-	handler(w, r)
+	articleHandler(w, r)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("status = %d, want 200; body: %s", w.Code, w.Body.String())
+	}
+}
+
+// --- routing ---
+
+func TestMuxServesRobotsTxt(t *testing.T) {
+	r := httptest.NewRequest("GET", "/robots.txt", nil)
+	w := httptest.NewRecorder()
+	newMux().ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "Disallow: "+articlePath) {
+		t.Errorf("robots.txt does not disallow %s; got: %s", articlePath, body)
+	}
+}
+
+func TestMuxServesWebmanifest(t *testing.T) {
+	r := httptest.NewRequest("GET", "/site.webmanifest", nil)
+	w := httptest.NewRecorder()
+	newMux().ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	if !strings.Contains(w.Body.String(), `"action": "`+articlePath+`"`) {
+		t.Errorf("share target does not point to %s", articlePath)
 	}
 }

@@ -17,7 +17,7 @@
   ],
   "share_target": {
     "method": "GET",
-    "action": "/",
+    "action": "/article",
     "params": {
       "url": "url",
       "title": "title",

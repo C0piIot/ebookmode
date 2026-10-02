@@ -19,6 +19,8 @@ var buildVersion = "dev"
 var gitRev = "HEAD"
 var urlPattern = regexp.MustCompile(`\bhttps?://\S+`)
 
+const articlePath = "/article"
+
 var httpClient = &http.Client{
 	Timeout: 30 * time.Second,
 }
@@ -66,7 +68,7 @@ func rewriteLinks(n *html.Node, base *url.URL) {
 		for i, a := range n.Attr {
 			if a.Key == "href" {
 				if resolved, err := base.Parse(a.Val); err == nil {
-					n.Attr[i].Val = "/?url=" + url.QueryEscape(resolved.String())
+					n.Attr[i].Val = articlePath + "?url=" + url.QueryEscape(resolved.String())
 				}
 			}
 			if a.Key == "rel" {
@@ -82,7 +84,19 @@ func rewriteLinks(n *html.Node, base *url.URL) {
 	}
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+	homeTmpl.ExecuteTemplate(w, "layout", pageData{
+		Build:  buildVersion,
+		GitRev: gitRev,
+		Host:   r.Host,
+	})
+}
+
+func articleHandler(w http.ResponseWriter, r *http.Request) {
 	rawURL := getURL(r)
 	base := pageData{
 		Build:  buildVersion,
@@ -92,7 +106,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if rawURL == "" {
-		homeTmpl.ExecuteTemplate(w, "layout", base)
+		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
 	base.URLEncoded = url.QueryEscape(rawURL)
@@ -118,10 +132,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
+		slog.Error("fetch", "url", rawURL, "err", err)
 		renderError(err)
 		return
 	}
 	defer resp.Body.Close()
+
+	slog.Info("fetch", "url", rawURL, "status", resp.StatusCode)
 
 	ct := resp.Header.Get("Content-Type")
 	if !strings.Contains(ct, "text/html") {
@@ -168,13 +185,21 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func main() {
+func newMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handler)
+	mux.HandleFunc("/", homeHandler)
+	mux.HandleFunc(articlePath, articleHandler)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	mux.HandleFunc("/site.webmanifest", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "static/site.webmanifest")
-	})
+	for _, name := range []string{"site.webmanifest", "robots.txt"} {
+		mux.HandleFunc("/"+name, func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "static/"+name)
+		})
+	}
+	return mux
+}
+
+func main() {
+	mux := newMux()
 	slog.Info("listening on :8080")
 	if err := http.ListenAndServe(":8080", loggingMiddleware(mux)); err != nil {
 		slog.Error("server error", "err", err)
