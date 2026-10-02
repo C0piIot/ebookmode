@@ -258,3 +258,32 @@ func TestArticleHandlerURLFromTextParam(t *testing.T) {
 		t.Errorf("status = %d, want 200; body: %s", w.Code, w.Body.String())
 	}
 }
+
+// --- routing ---
+
+func TestMuxServesRobotsTxt(t *testing.T) {
+	r := httptest.NewRequest("GET", "/robots.txt", nil)
+	w := httptest.NewRecorder()
+	newMux().ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "Disallow: "+articlePath) {
+		t.Errorf("robots.txt does not disallow %s; got: %s", articlePath, body)
+	}
+}
+
+func TestMuxServesWebmanifest(t *testing.T) {
+	r := httptest.NewRequest("GET", "/site.webmanifest", nil)
+	w := httptest.NewRecorder()
+	newMux().ServeHTTP(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	if !strings.Contains(w.Body.String(), `"action": "`+articlePath+`"`) {
+		t.Errorf("share target does not point to %s", articlePath)
+	}
+}

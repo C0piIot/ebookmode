@@ -185,14 +185,21 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func main() {
+func newMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", homeHandler)
 	mux.HandleFunc(articlePath, articleHandler)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	mux.HandleFunc("/site.webmanifest", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "static/site.webmanifest")
-	})
+	for _, name := range []string{"site.webmanifest", "robots.txt"} {
+		mux.HandleFunc("/"+name, func(w http.ResponseWriter, r *http.Request) {
+			http.ServeFile(w, r, "static/"+name)
+		})
+	}
+	return mux
+}
+
+func main() {
+	mux := newMux()
 	slog.Info("listening on :8080")
 	if err := http.ListenAndServe(":8080", loggingMiddleware(mux)); err != nil {
 		slog.Error("server error", "err", err)
