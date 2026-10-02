@@ -46,10 +46,10 @@ docker run --rm -v "$(pwd)":/app -w /app -e GOTOOLCHAIN=auto golang:1.24-alpine 
 
 ## Usage
 
-Navigate to the running instance and enter a URL, or use the bookmarklet:
+Navigate to the running instance and enter a URL, or use the bookmarklet. Articles are served from `/article?url=…`:
 
 ```
-javascript: (() => { window.location.href='https://<your-host>/?url=' + encodeURIComponent(window.location.href) })()
+javascript: (() => { window.location.href='https://<your-host>/article?url=' + encodeURIComponent(window.location.href) })()
 ```
 
 The service also accepts URLs via the `text` and `title` query parameters, which matches the format used by the browser Web Share Target API.
